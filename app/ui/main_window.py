@@ -205,6 +205,8 @@ class MainWindow(ctk.CTk):
             self._status_cb(False)
 
     def _restart_timer(self) -> None:
+        # _tick loop is still running (self._running stays True), so resetting
+        # _start_time is sufficient — the next tick picks up the new time.
         self._start_time = time.monotonic()
         self._timer.start(
             duration_seconds=self._interval * 60,
