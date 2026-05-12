@@ -1,11 +1,12 @@
 import json
 import os
 from pathlib import Path
+from types import MappingProxyType
 
-DEFAULTS: dict = {
+DEFAULTS = MappingProxyType({
     "interval_minutes": 45,
     "theme": "system",
-}
+})
 
 
 def _settings_path() -> Path:
