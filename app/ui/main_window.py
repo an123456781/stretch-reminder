@@ -214,6 +214,8 @@ class MainWindow(ctk.CTk):
         )
 
     def _on_timer_finish(self) -> None:
+        if not self._running:
+            return
         self._notifier_fn()
         self._restart_timer()
 
