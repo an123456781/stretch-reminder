@@ -8,3 +8,5 @@ dist/
 .env
 .vscode/
 .idea/
+.claude/
+.pytest_cache/

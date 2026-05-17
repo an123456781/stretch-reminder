@@ -10,6 +10,7 @@ a = Analysis(
     binaries=[],
     datas=[
         ("assets/icon.ico", "assets"),
+        ("assets/fonts/Oswald-VF.ttf", "assets/fonts"),
         (_ctk_dir, "customtkinter"),
     ],
     hiddenimports=[

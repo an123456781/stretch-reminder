@@ -10,12 +10,16 @@ _MAX_VAL = 120
 _STEP = 5
 
 ACCENT = "#CAFF3C"
-_TRACK_LIGHT = "#CCCCCC"
-_TRACK_DARK = "#555555"
+_DISPLAY_FONT = "Oswald"
+_UI_FONT = "Arial"
+_TRACK_LIGHT = "#111111"
+_TRACK_DARK = "#666666"
 _HANDLE_LIGHT = "#111111"
 _HANDLE_DARK = "#FFFFFF"
 _BG_LIGHT = "#F0EDE6"
 _BG_DARK = "#111111"
+_SUBLABEL_LIGHT = "#111111"
+_SUBLABEL_DARK = "#F6F4EF"
 
 
 def value_to_dial_angle(value: int) -> float:
@@ -101,65 +105,69 @@ class DialWidget(tk.Frame):
         c.delete("all")
         s = self._size
         cx = cy = s / 2
-        r_arc = s * 0.36       # arc radius
-        r_handle = s * 0.40    # handle dot radius
-        pad = s * 0.12
+
+        # Arc geometry — margin defines bounding box, r_arc is the actual radius
+        margin = s * 0.08
+        r_arc = (s - 2 * margin) / 2
 
         track = _TRACK_DARK if self._dark else _TRACK_LIGHT
+        sublabel = _SUBLABEL_DARK if self._dark else _SUBLABEL_LIGHT
         handle_col = _HANDLE_DARK if self._dark else _HANDLE_LIGHT
         text_col = _HANDLE_DARK if self._dark else _HANDLE_LIGHT
 
-        # tick marks
-        for i in range(23):
-            da = i * (_ARC_SPAN / 22)
+        # Tick marks — sparse long markers like in the concept.
+        n_ticks = 19
+        for i in range(n_ticks):
+            da = i * (_ARC_SPAN / (n_ticks - 1))
             ca = math.radians(dial_angle_to_canvas_angle(da))
-            for frac_in, frac_out in [(0.83, 0.95)]:
-                c.create_line(
-                    cx + r_arc * frac_in * math.cos(ca),
-                    cy - r_arc * frac_in * math.sin(ca),
-                    cx + r_arc * frac_out * math.cos(ca),
-                    cy - r_arc * frac_out * math.sin(ca),
-                    fill=track, width=1,
-                )
+            major = i % 3 == 0
+            r_out = r_arc * 0.98
+            r_in = r_arc * (0.82 if major else 0.89)
+            c.create_line(
+                cx + r_out * math.cos(ca), cy - r_out * math.sin(ca),
+                cx + r_in  * math.cos(ca), cy - r_in  * math.sin(ca),
+                fill=track, width=2 if major else 1,
+            )
 
-        # background track arc
+        # Background track arc
         c.create_arc(
-            pad, pad, s - pad, s - pad,
+            margin, margin, s - margin, s - margin,
             start=_START_CANVAS_ANGLE, extent=-_ARC_SPAN,
-            style="arc", outline=track, width=3,
+            style="arc", outline=track, width=1,
         )
 
-        # filled accent arc
+        # Filled accent arc
         dial_angle = value_to_dial_angle(self._value)
         if dial_angle > 0:
             c.create_arc(
-                pad, pad, s - pad, s - pad,
+                margin, margin, s - margin, s - margin,
                 start=_START_CANVAS_ANGLE, extent=-dial_angle,
-                style="arc", outline=ACCENT, width=4,
+                style="arc", outline=ACCENT, width=6,
             )
 
-        # handle dot
+        # Handle dot — sits on the arc line
         ca = math.radians(dial_angle_to_canvas_angle(dial_angle))
-        hx = cx + r_handle * math.cos(ca)
-        hy = cy - r_handle * math.sin(ca)
-        dot = s * 0.045
-        c.create_oval(hx - dot, hy - dot, hx + dot, hy + dot,
+        hx = cx + r_arc * math.cos(ca)
+        hy = cy - r_arc * math.sin(ca)
+        dot_r = s * 0.055
+        c.create_oval(hx - dot_r, hy - dot_r, hx + dot_r, hy + dot_r,
                       fill=handle_col, outline="")
 
-        # center value text
-        fs = int(s * 0.17)
+        # Center value — large Impact number
+        fs = int(s * 0.25)
         self._center_text_id = c.create_text(
-            cx, cy - fs * 0.3,
+            cx, cy - fs * 0.18,
             text=str(self._value),
-            font=("Arial", fs, "bold"),
+            font=(_DISPLAY_FONT, fs, "bold"),
             fill=text_col,
         )
-        # "МИНУТ" sub-label
+        # "МИНУТ" sublabel
+        sub_fs = int(s * 0.082)
         c.create_text(
-            cx, cy + fs * 0.7,
+            cx, cy + fs * 0.68,
             text="МИНУТ",
-            font=("Arial", int(s * 0.07)),
-            fill=track,
+            font=(_UI_FONT, sub_fs, "bold"),
+            fill=sublabel,
         )
 
     # ── mouse interaction ─────────────────────────────────────────────────
