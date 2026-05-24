@@ -10,4 +10,5 @@ dist/
 .idea/
 .claude/
 .pytest_cache/
+tests/
 docs/superpowers/
